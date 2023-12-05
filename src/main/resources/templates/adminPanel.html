@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <title>Список пользователей</title>
+</head>
+<body>
+<div class="container-user-list">
+    <h1>Список пользователей</h1>
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th class="th-id">ID</th>
+                <th class="th-name">Имя</th>
+                <th class="th-surname">Фамилия</th>
+                <th class="th-age">Возраст</th>
+                <th class="th-username">Username</th>
+                <th class="th-password">Пароль</th>
+                <th class="th-roles">Роли</th>
+                <th class="th-actions" colspan="3">Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.getId()}"></td>
+                <td th:text="${user.getName()}"></td>
+                <td th:text="${user.getSurname()}"></td>
+                <td th:text="${user.getAge()}"></td>
+                <td th:text="${user.getUsername()}"></td>
+                <td th:text="${user.getPassword()}"></td>
+                <td th:text="${user.toStringUserRoles()}"></td>
+                <td class="button">
+                    <a th:href="@{/admin/check-user(id=${user.id})}">Страница</a>
+                </td>
+                <td class="button">
+                    <a th:href="@{/admin/user-update(id=${user.id})}">Изменить</a>
+                </td>
+                <td class="button">
+                    <a th:href="@{/admin/user-delete(id=${user.id})}">Удалить</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a class="action-button" th:href="@{/admin/user-add}">Создать нового пользователя</a>
+    <a class="action-button" th:href="@{/logout}">Выйти из аккаунта</a>
+</div>
+</body>
+</html>

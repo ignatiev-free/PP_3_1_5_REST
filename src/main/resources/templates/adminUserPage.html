@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <title>Страница пользователя</title>
+</head>
+<body>
+<div class="container-userpage">
+    <h1>Страница пользователя
+        <th:block th:text="${user.getName()}"/>
+    </h1>
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th class="th-name">Имя</th>
+                <th class="th-surname">Фамилия</th>
+                <th class="th-age">Возраст</th>
+                <th class="th-username">Логин</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${user.getName()}"></td>
+                <td th:text="${user.getSurname()}"></td>
+                <td th:text="${user.getAge()}"></td>
+                <td th:text="${user.getUsername()}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+            <tr>
+                <th class="th-password">Зашифрованный пароль</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${user.getPassword()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a class="action-button" th:href="@{/admin}">Вернуться на панель админа</a>
+    <a class="action-button" th:href="@{/logout}">Выйти из аккаунта</a>
+</div>
+</body>
+</html>

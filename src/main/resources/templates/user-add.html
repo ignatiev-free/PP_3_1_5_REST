@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить пользователя</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<body>
+<div class="container-user-add">
+    <h1>Добавить пользователя</h1>
+    <form action="#" method="post" th:action="@{/admin/user-add}" th:object="${user}">
+
+        <div class="form-group">
+            <label for="name">Имя</label>
+            <input id="name" th:field="*{name}" type="text"/>
+            <div style="color:red" th:errors="*{name}" th:if="${#fields.hasErrors('name')}">Ошибка!</div>
+        </div>
+
+        <div class="form-group">
+            <label for="lastName">Фамилия</label>
+            <input id="lastName" th:field="*{surname}" type="text"/>
+            <div style="color:red" th:errors="*{surname}" th:if="${#fields.hasErrors('surname')}">Ошибка!</div>
+        </div>
+
+        <div class="form-group">
+            <label for="age">Возраст</label>
+            <input id="age" th:field="*{age}" type="number"/>
+            <div style="color:red" th:errors="*{age}" th:if="${#fields.hasErrors('age')}">Ошибка!</div>
+        </div>
+
+        <div class="form-group">
+            <label for="username">Логин</label>
+            <input id="username" th:field="*{username}" type="text"/>
+            <div style="color:red" th:errors="*{username}" th:if="${#fields.hasErrors('username')}">Ошибка!</div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Пароль</label>
+            <input id="password" th:field="*{password}" type="text"/>
+            <div style="color:red" th:errors="*{password}" th:if="${#fields.hasErrors('password')}">Ошибка!</div>
+        </div>
+
+        <div class="form-group">
+            <label>Роли</label>
+            <div class="container-roles">
+                <div style="margin-bottom: 5px" th:each="role : ${roles}">
+                    <input name="roles"
+                           th:field="*{roles}"
+                           th:text="${role.getName()}"
+                           th:value="${role.getId()}"
+                           type="checkbox"
+                    />
+                </div>
+            </div>
+            <div style="color:red" th:errors="*{roles}" th:if="${#fields.hasErrors('roles')}">Ошибка!</div>
+        </div>
+
+        <input class="action-button" type="submit" value="Создать пользователя"/>
+        <a class="action-button" th:href="@{/admin}">Вернуться на панель админа</a>
+        <a class="action-button" th:href="@{/logout}">Выйти из аккаунта</a>
+    </form>
+</div>
+</body>
+</html>
