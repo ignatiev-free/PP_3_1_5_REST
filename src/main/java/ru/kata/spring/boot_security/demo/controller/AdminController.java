@@ -1,20 +1,18 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.entity.Roles;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
-
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
+import java.security.Principal;
+import java.util.List;
 
 
 @Controller
@@ -25,64 +23,45 @@ public class AdminController {
     private final RoleService roleService;
 
     @GetMapping()
-    public String printUsers(Model model) {
+    public String adminPage(Model model, Principal principal) {
         model.addAttribute("users", userService.findAll());
-        return "adminPanel";
+        model.addAttribute("currentUser", userService.findByUsername(principal.getName()));
+        model.addAttribute("roles", roleService.getAllRoles());
+        model.addAttribute("newUser", new User());
+        return "admin-panel";
     }
 
-    @GetMapping("/check-user")
-    public String showUser(Model model, @RequestParam(name = "id") Long id) {
-        model.addAttribute("user", userService.findById(id));
-        return "adminUserPage";
-    }
-
-    @GetMapping("/user-add")
-    public String addUserForm(Model model) {
+    @GetMapping("/user-create")
+    public String addUserForm(Model model, Principal principal) {
+        model.addAttribute("currentUser", userService.findByUsername(principal.getName()));
         model.addAttribute("roles", roleService.getAllRoles());
         model.addAttribute("user", new User());
-        return "user-add";
+        return "user-create";
     }
 
-    @PostMapping("/user-add")
-    public String addUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
+    @PostMapping()
+    public String addUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult,
+                          @ModelAttribute("currentUser") User currentUser,
+                          @ModelAttribute("roles") List<Roles> roles) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("roles", roleService.getAllRoles());
-            return "user-add";
+            return "redirect:/admin";
         }
         userService.saveUser(user);
         return "redirect:/admin";
     }
 
-    @GetMapping("/user-update")
-    public String updateUserForm(@RequestParam(name = "id") Long id, Model model) {
-        model.addAttribute("roles", roleService.getAllRoles());
-        model.addAttribute("user", userService.findById(id));
-        return "user-update";
-    }
-
-    @PostMapping("/user-update")
-    public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
-        model.addAttribute("roles", roleService.getAllRoles());
-        if (bindingResult.hasErrors()) {
-            return "user-update";
-        }
-        userService.saveUser(user);
-        return "redirect:/admin";
-    }
-
-    @GetMapping("/user-delete")
-    public String deleteUserFromTable(@RequestParam(name = "id") Long id) {
+    @DeleteMapping("/user-delete")
+    public String deleteUser(@RequestParam(value = "id") Long id) {
         userService.deleteById(id);
         return "redirect:/admin";
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            request.getSession().invalidate();
+    @PostMapping("/user-update")
+    public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "redirect:/admin";
         }
-        return "redirect:/";
+        userService.saveUser(user);
+        return "redirect:/admin";
     }
-
 }
