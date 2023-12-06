@@ -29,18 +29,6 @@
             </tr>
             </tbody>
         </table>
-        <table>
-            <thead>
-            <tr>
-                <th class="th-password">Зашифрованный пароль</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td th:text="${user.getPassword()}"></td>
-            </tr>
-            </tbody>
-        </table>
     </div>
     <a class="action-button" th:href="@{/admin}">Вернуться на панель админа</a>
     <a class="action-button" th:href="@{/logout}">Выйти из аккаунта</a>

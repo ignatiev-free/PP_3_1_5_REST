@@ -6,12 +6,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -50,15 +49,7 @@ public class AdminController {
             model.addAttribute("roles", roleService.getAllRoles());
             return "user-add";
         }
-        user.setPassword(encoder.encode(user.getPassword()));
-        if (userService.findByUsername(user.getUsername()) == null) {
-            userService.saveUser(user);
-        } else {
-            bindingResult.addError(new FieldError("user", "username",
-                    "Пользователь с таким логином уже существует!"));
-            model.addAttribute("roles", roleService.getAllRoles());
-            return "user-add";
-        }
+        userService.saveUser(user);
         return "redirect:/admin";
     }
 
@@ -72,7 +63,6 @@ public class AdminController {
     @PostMapping("/user-update")
     public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
         model.addAttribute("roles", roleService.getAllRoles());
-        user.setPassword(encoder.encode(user.getPassword()));
         if (bindingResult.hasErrors()) {
             return "user-update";
         }
@@ -95,5 +85,4 @@ public class AdminController {
         return "redirect:/";
     }
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 }

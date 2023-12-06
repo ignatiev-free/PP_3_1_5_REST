@@ -13,10 +13,6 @@ import javax.validation.constraints.*;
 @Data
 @Entity
 @Table(name = "users")
-@Setter
-@Getter
-@ToString
-@RequiredArgsConstructor
 public class User implements UserDetails {
 
     @Id
@@ -41,11 +37,11 @@ public class User implements UserDetails {
     private int age;
 
     @Column(name = "username", unique = true)
-    @NotEmpty(message = "Некорректный формат логина: проверьте введённые данные")
+    @NotEmpty(message = "username не может быть пустым")
     private String username;
 
     @Column(name = "password")
-    @NotEmpty(message = "Некорректный формат пароля: проверьте введённые данные")
+    @NotEmpty(message = "password не может быть пустым")
     private String password;
 
     @Fetch(FetchMode.JOIN)
@@ -55,7 +51,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    @NotEmpty(message = "Некорректный формат пароля: проверьте введённые данные")
+    @NotEmpty(message = "Отсутствует роль")
     private Collection<Roles> roles;
 
     public String toStringUserRoles() {

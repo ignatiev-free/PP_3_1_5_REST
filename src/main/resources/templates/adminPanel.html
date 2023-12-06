@@ -17,7 +17,6 @@
                 <th class="th-surname">Фамилия</th>
                 <th class="th-age">Возраст</th>
                 <th class="th-username">Username</th>
-                <th class="th-password">Пароль</th>
                 <th class="th-roles">Роли</th>
                 <th class="th-actions" colspan="3">Действия</th>
             </tr>
@@ -29,7 +28,6 @@
                 <td th:text="${user.getSurname()}"></td>
                 <td th:text="${user.getAge()}"></td>
                 <td th:text="${user.getUsername()}"></td>
-                <td th:text="${user.getPassword()}"></td>
                 <td th:text="${user.toStringUserRoles()}"></td>
                 <td class="button">
                     <a th:href="@{/admin/check-user(id=${user.id})}">Страница</a>
