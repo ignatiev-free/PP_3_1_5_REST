@@ -1,11 +1,12 @@
 package ru.kata.spring.boot_security.demo.entity;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+
 
 @Entity
 @Table(name = "roles")
@@ -28,6 +29,6 @@ public class Roles implements GrantedAuthority {
 
     @Override
     public String toString() {
-        return name;
+        return name.replace("ROLE_", "");
     }
 }

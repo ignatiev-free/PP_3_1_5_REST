@@ -1,67 +1,108 @@
 package ru.kata.spring.boot_security.demo.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.entity.Roles;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import javax.validation.Valid;
-import java.security.Principal;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
-@Controller
+@RestController
 @RequestMapping("/admin")
-@RequiredArgsConstructor
 public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
 
-    @GetMapping()
-    public String adminPage(Model model, Principal principal) {
-        model.addAttribute("users", userService.findAll());
-        model.addAttribute("currentUser", userService.findByUsername(principal.getName()));
-        model.addAttribute("roles", roleService.getAllRoles());
-        model.addAttribute("newUser", new User());
-        return "admin-panel";
+    @Autowired
+    public AdminController(UserService userService, RoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
     }
 
-    @GetMapping("/user-create")
-    public String addUserForm(Model model, Principal principal) {
-        model.addAttribute("currentUser", userService.findByUsername(principal.getName()));
-        model.addAttribute("roles", roleService.getAllRoles());
-        model.addAttribute("user", new User());
-        return "user-create";
+    @GetMapping("/list")
+    public ResponseEntity<List<User>> showAllUser() {
+        return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
     }
 
-    @PostMapping()
-    public String addUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult,
-                          @ModelAttribute("currentUser") User currentUser,
-                          @ModelAttribute("roles") List<Roles> roles) {
+    @GetMapping("/roles")
+    public ResponseEntity<List<Roles>> getAllRoles() {
+        return new ResponseEntity<>(roleService.getAllRoles(), HttpStatus.OK);
+    }
+
+    @GetMapping("/roles/{id}")
+    public ResponseEntity<Collection<Roles>> getMyRoles(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(userService.findById(id).getRoles(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserId(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(userService.findById(id), HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> addNewUser(@RequestBody @Valid User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "redirect:/admin";
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(error -> error instanceof FieldError ?
+                            ((FieldError) error).getField() + ": " + error.getDefaultMessage() :
+                            error.getDefaultMessage())
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.badRequest().body(errors);
         }
-        userService.saveUser(user);
-        return "redirect:/admin";
+        try {
+            userService.saveUser(user);
+        } catch (Exception save) {
+            bindingResult.addError(new ObjectError("username", "Пользователь с таким логином уже существует"));
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(error -> error instanceof FieldError ?
+                            ((FieldError) error).getField() + ": " + error.getDefaultMessage() :
+                            error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errors);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/user-delete")
-    public String deleteUser(@RequestParam(value = "id") Long id) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable("id") Long id,
+                                        @RequestBody @Valid User user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(error -> error instanceof FieldError ?
+                            ((FieldError) error).getField() + ": " + error.getDefaultMessage() :
+                            error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errors);
+        }
+        try {
+            userService.update(id, user);
+        } catch (Exception update) {
+            bindingResult.addError(new ObjectError("username", "Пользователь с таким логином существует"));
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(error -> error instanceof FieldError ?
+                            ((FieldError) error).getField() + ": " + error.getDefaultMessage() :
+                            error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errors);
+        }
+        return ResponseEntity.ok(user);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         userService.deleteById(id);
-        return "redirect:/admin";
-    }
-
-    @PostMapping("/user-update")
-    public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "redirect:/admin";
-        }
-        userService.saveUser(user);
-        return "redirect:/admin";
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -29,7 +29,7 @@ public class User implements UserDetails {
     @NotNull(message = "У User нет фамилии")
     @Size(min = 2, max = 50, message = "Фамилия должна содержать от 2 до 50 символов")
     @Pattern(regexp = "^[a-zA-Zа-яА-Я]*$", message = "Фамилия должна содержать только буквы")
-    private String surname;
+    private String lastName;
 
     @Column
     @NotNull(message = "У User нет возраста")
@@ -53,10 +53,6 @@ public class User implements UserDetails {
     )
     @NotEmpty(message = "Отсутствует роль")
     private Collection<Roles> roles;
-
-    public String toStringUserRoles() {
-        return roles.toString();
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -83,4 +79,7 @@ public class User implements UserDetails {
         return true;
     }
 
+    public String getShortRole() {
+        return roles.toString().substring(1, roles.toString().length() - 1);
+    }
 }
